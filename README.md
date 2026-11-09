@@ -220,3 +220,48 @@ Segmentation was evaluated using Dice, ROC-AUC, clDice, and thin-vessel recall. 
 
 The proposed model was evaluated on eight CHASE_DB1 images from four subjects. The first manual annotation was used as the reference mask. This provides a limited external evaluation.
 
+## 7. Model Training and Model Selection
+
+### 7.1 Training Runs
+
+All models used the same FIVES training and validation splits. The five-model comparison used the seed-42 checkpoint from each configuration.
+
+| Model | Seeds | Maximum Epochs | Batch Size | Best Epoch (Seed 42) |
+|---|---|---:|---:|---:|
+| M0 | 42, 43 | 20 | 8 | 19 |
+| M1 | 42, 43 | 20 | 16 | 15 |
+| M2 | 42, 43 | 20 | 16 | 19 |
+| Proposed Model | 42 | 70 | 16 | 20 |
+| Capacity-control | 42 | 70 | 16 | 26 |
+
+The Proposed Model stopped at epoch 35, while the capacity-control model stopped at epoch 41 through early stopping.
+
+### 7.2 Training Configuration
+
+All five configurations used AdamW with an initial learning rate of 0.001 and weight decay of 0.01. The training loss combined binary cross-entropy and soft Dice loss with equal weights.
+
+| Setting | M0 | M1 and M2 | Proposed Model and Capacity-control |
+|---|---|---|---|
+| Input | Resized full image | Native patches | Native patches |
+| Batch size | 8 | 16 | 16 |
+| Dice calculation | Per image | Per patch | Per patch |
+| Mixed precision | FP16 | FP16 | FP16 |
+
+The Proposed Model and capacity-control also used CosineAnnealingLR with a minimum learning rate of 0.00001. Both used early stopping with a patience of 15 epochs.
+
+Brightness augmentation used alpha values from 0.9 to 1.1 and beta values from -0.05 to 0.05. For the Proposed Model, the same adjustment was applied to the native patch and global view.
+
+### 7.3 Checkpoint Selection
+
+At each epoch, predictions were reconstructed on the original image grid. The checkpoint with the lowest mean reconstructed-image BCE/Dice validation loss was selected. Ties were resolved by keeping the earlier checkpoint.
+
+The held-out test set was not used for checkpoint selection.
+
+### 7.4 Threshold Selection
+
+Threshold selection was performed separately using validation data. The fixed thresholds are reported in Section 6.3.
+
+- **Proposed Model:** Selected using a validation sweep from 0.01 to 0.99, with pooled micro Dice as the primary criterion.
+
+The Proposed Model threshold protocol was amended after an earlier sweep. It was not a preregistered rule. No threshold was adjusted using test results.
+

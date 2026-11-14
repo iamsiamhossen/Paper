@@ -281,13 +281,17 @@ CHASE_DB1 contains 28 images from 14 subjects. Its 20-image training partition w
 
 ## 8.2 Training Behaviour and Model Selection
 
-The Proposed Model was trained with seed 42. The best checkpoint was selected at epoch 20, with a mean reconstructed-image validation loss of 0.059198. Training stopped at epoch 35 after the early-stopping patience was reached.
+The Proposed Model was trained using seed 42. The best checkpoint was selected at epoch 20, achieving a mean reconstructed-image validation loss of 0.059198. Training continued until epoch 35, when early stopping was triggered.
 
-Figure 04 shows the mean training patch loss and the mean reconstructed full-image validation loss. These curves are calculated at different levels and should not be compared as if they had the same granularity. No epoch-wise training Dice curve was available for this run.
+Figure 04(a) presents the training and validation loss curves together. After epoch 20, training loss continued to decrease, while validation loss showed no sustained improvement. This divergence indicates an overfitting tendency during the later training epochs and supports selecting the epoch-20 checkpoint.
 
-![Figure 04. Model training behaviour and checkpoint selection.](PNG/thesis_figures/figure04_training_behaviour_qegr_c0y/figure04_model_training_behaviour.png)
+Figure 04(b) shows the two loss trends separately for clearer inspection. Training loss was calculated over training patches, whereas validation loss was calculated on reconstructed full images. Therefore, their absolute values should not be directly compared as equivalent measurements.
 
-*Figure 04. Training patch loss, reconstructed-image validation loss, and the selected checkpoint.*
+![Figure 04(a). Combined training and validation loss.](PNG/Figure_2_1_Training_Validation_Loss_v1.png)
+
+![Figure 04(b). Separate training and validation loss behaviour.](PNG/thesis_figures/figure04_training_behaviour_qegr_c0y/figure04_model_training_behaviour.png)
+
+*Figure 04. Training behaviour, showing the combined loss curves and their separate trends. The best checkpoint was selected at epoch 20, followed by early stopping at epoch 35.*
 
 ## 8.3 Segmentation Configuration Comparison (RQ1)
 

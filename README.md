@@ -447,3 +447,67 @@ CHASE_DB1 results are limited to eight images from four subjects. They do not es
 
 <!-- Evidence map: 8.1 figure02_representative_samples.csv and figure02_generation_protocol.json; 8.2 figure04_training_history_plotted.csv and figure04_generation_protocol.json; 8.3 rq1_configuration_summary.csv, figure05_plotted_validation_metrics.csv, figure06_three_case_selection.csv and figure06_generation_metadata.json; 8.4 core_v1_test_summary_20261103_183509_UTC.csv, core_v1_test_per_image_20261103_183509_UTC.csv and core_v1_test_protocol_20261103_183509_UTC.json; 8.5 rq2_test_thin_fn_measurement_correlations.csv, rq2_test_thin_fn_quartile_summary.csv, figure08_test_case_selection.csv and figure09_saved_correlation_and_quartile_statistics.csv; 8.6 rq3_test_primary_uncertainty_error_correlations.csv, rq3_test_analysis_protocol.json and figure11_validation_vs_test_correlation_data_updated.csv; 8.7 figure12_review_budget_plot_data.csv, figure12_frozen_policy_plot_data.csv and figure12_generation_metadata.json; 8.8 figure13_chase_test_per_image_dice_cldice_and_roi.csv and CHASE_DB1_CORE_V1_SPLIT_SUMMARY.csv. -->
 
+
+## 9. Overall Findings
+
+This study addressed two research questions on retinal vessel segmentation and biomarker reliability.
+
+**RQ1: Effect of global context on segmentation**
+
+The Proposed Model achieved the highest thin-vessel recall and the lowest VD and FD errors among the five configurations in the main validation comparison. Its thin-vessel recall was 0.495328, with VD MAE of 0.003073 and FD MAE of 0.017908. M2 achieved the lowest CD MAE (0.000367), while the Proposed Model achieved 0.000471.
+
+These results show that the Proposed Model provides a strong overall balance, particularly for thin-vessel recovery, VD, and FD. However, it did not achieve the best result for every measure. The comparison evaluates complete model configurations and does not isolate the effect of global context from all other architectural differences.
+
+**RQ2: Thin-vessel errors, biomarker reliability, and quality review**
+
+Thin-vessel false negatives were associated with errors in all three biomarkers. The strongest relationship was found for CD, followed by FD. This pattern appeared in both FIVES validation and held-out test results.
+
+| Biomarker | Validation Spearman ρ | Test Spearman ρ |
+|---|---:|---:|
+| VD | 0.155 | 0.245 |
+| CD | 0.662 | 0.552 |
+| FD | 0.436 | 0.345 |
+
+The validation VD result requires caution because its bootstrap confidence interval crossed zero, although its BH-adjusted q-value was below 0.05. The other reported associations provide clearer evidence of a positive relationship.
+
+The highest thin-FN quartile also had larger measurement errors than the lowest quartile. The high-to-low MAE ratios were 1.80× for VD, 4.06× for CD, and 2.39× for FD in validation. In the held-out test results, the corresponding ratios were 2.10×, 2.65×, and 2.37×.
+
+Uncertainty analysis showed that TTA variance and TTA JSD were useful signals for identifying some images with larger biomarker errors. However, their usefulness depended on the biomarker. The review experiments also showed that uncertainty-guided selection did not perform equally well for VD, CD, and FD. In particular, the frozen policy required manual review of all images for CD and a large proportion of images for VD and FD.
+
+Overall, the findings support the link between thin-vessel segmentation errors and biomarker measurement errors. They also show that uncertainty can support image-level quality review, but it cannot replace direct measurement checks or human review.
+
+## 10. Limitations
+
+This study has several limitations.
+
+- **Dataset coverage:** The main experiments used FIVES. Results from one primary dataset may not represent the full range of retinal images and imaging conditions.
+
+- **External evaluation size:** The CHASE_DB1 external test included only 8 images from 4 subjects. Its results are descriptive and do not establish robust generalization to other datasets.
+
+- **Reference annotations:** Segmentation and biomarker measurements depend on the available vessel annotations. Differences between manual annotations and actual vessel boundaries may affect the measured errors.
+
+- **Biomarker scope:** The study focused on VD, CD, and FD. These are image-based measurements and do not provide physical vessel dimensions. The images were not calibrated to micrometres, and artery–vein separation was not performed.
+
+- **Uncertainty interpretation:** TTA variance and TTA JSD measure disagreement across transformed views. They are not direct or calibrated estimates of epistemic uncertainty. Their relationship with biomarker errors does not establish causation.
+
+- **Quality-review evaluation:** The review strategy was evaluated through retrospective image-level selection and simulated random comparisons. No clinical reader study or real-world review workflow was conducted. The frozen policy also produced a high review burden, especially for CD.
+
+These limitations mean that the results should be understood as an image-level study of segmentation and measurement reliability, not as evidence of clinical readiness.
+
+## 11. Conclusion and Future Work
+
+This study examined retinal vessel segmentation beyond pixel-level performance. It compared five segmentation configurations and investigated how thin-vessel false negatives relate to VD, CD, and FD measurement errors.
+
+The Proposed Model achieved the strongest results for thin-vessel recall, VD error, and FD error in the main validation comparison, while M2 performed best for CD error. The analysis also showed that higher thin-vessel FN rates were associated with larger biomarker errors, particularly for CD and FD.
+
+Uncertainty-guided review identified some high-error images, but its performance varied across biomarkers. The external CHASE_DB1 evaluation provided an initial assessment under a different dataset, but its small sample limits the conclusions.
+
+Future work should focus on the following areas:
+
+1. **Broader external evaluation:** Test the model on larger retinal datasets with more subjects and varied imaging conditions.
+2. **Improved thin-vessel recovery:** Study methods that reduce thin-vessel false negatives without increasing false-positive predictions.
+3. **Better uncertainty assessment:** Compare view-disagreement signals with calibrated uncertainty methods and examine their reliability across datasets.
+4. **Practical quality review:** Evaluate the review strategy with human graders and measure its effect on review time, agreement, and measurement reliability.
+
+The main contribution of this work is an evaluation framework that connects retinal vessel segmentation errors with downstream biomarker reliability and image-level quality review.
+

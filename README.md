@@ -265,3 +265,181 @@ Threshold selection was performed separately using validation data. The fixed th
 
 The Proposed Model threshold protocol was amended after an earlier sweep. It was not a preregistered rule. No threshold was adjusted using test results.
 
+# 8. Results and Analysis
+
+This section reports the results in the order of the research workflow. FIVES validation results are used for configuration comparison and review-policy development. The held-out FIVES test set provides the primary internal evaluation. CHASE_DB1 is used for a limited external evaluation. These results are reported separately.
+
+## 8.1 Experimental Overview
+
+FIVES contains 798 images. The dataset was divided into 419 training images, 179 validation images, and 200 held-out test images. Five segmentation configurations were compared on the validation set. The selected Proposed Model (internal implementation name: Core-v1) was then evaluated on the held-out test set.
+
+CHASE_DB1 contains 28 images from 14 subjects. Its 20-image training partition was not used to train the model. The external test contains eight images from four subjects. The first manual annotation was used as the primary reference.
+
+![Figure 02. Datasets and experimental split.](PNG/thesis_figures/figure02_dataset_split_ltclc9j6/figure02_datasets_and_experimental_split.png)
+
+*Figure 02. FIVES development and test partitions, and the CHASE_DB1 external evaluation split.*
+
+## 8.2 Training Behaviour and Model Selection
+
+The Proposed Model was trained with seed 42. The best checkpoint was selected at epoch 20, with a mean reconstructed-image validation loss of 0.059198. Training stopped at epoch 35 after the early-stopping patience was reached.
+
+Figure 04 shows the mean training patch loss and the mean reconstructed full-image validation loss. These curves are calculated at different levels and should not be compared as if they had the same granularity. No epoch-wise training Dice curve was available for this run.
+
+![Figure 04. Model training behaviour and checkpoint selection.](PNG/thesis_figures/figure04_training_behaviour_qegr_c0y/figure04_model_training_behaviour.png)
+
+*Figure 04. Training patch loss, reconstructed-image validation loss, and the selected checkpoint.*
+
+## 8.3 Segmentation Configuration Comparison (RQ1)
+
+The five configurations were compared on the 179-image FIVES validation set. The table reports mean image-level thin-vessel recall and the mean absolute errors (MAE) for the three biomarkers.
+
+| Configuration | Threshold | Thin-vessel recall | VD MAE | CD MAE | FD MAE |
+|---|---:|---:|---:|---:|---:|
+| M0 | 0.65 | 0.240589 | 0.012213 | 0.000823 | 0.045448 |
+| M1 | 0.40 | 0.360818 | 0.005570 | 0.000452 | 0.052219 |
+| M2 | 0.35 | 0.429126 | 0.003919 | **0.000367** | 0.038587 |
+| Proposed Model | 0.49 | **0.495328** | **0.003073** | 0.000471 | **0.017908** |
+| Capacity-control | 0.47 | 0.476057 | 0.004189 | 0.000487 | 0.025188 |
+
+The Proposed Model achieved the highest mean thin-vessel recall and the lowest VD and FD MAE. M2 achieved the lowest CD MAE. The result therefore varies by metric. The Proposed Model should not be described as the best configuration on every measure.
+
+The qualitative comparison includes one case where the Proposed Model performed better, one typical case, and one case where a competing configuration performed better. These examples illustrate image-level variation. They do not represent the frequency of each outcome across the full validation set.
+
+![Figure 05. Validation-based configuration comparison.](PNG/thesis_figures/figure05_rq1_validation_final_mp38c670/figure05_validation_configuration_comparison.png)
+
+*Figure 05. Thin-vessel recall and biomarker MAE across the five configurations on FIVES validation.*
+
+![Figure 06. Qualitative comparison of the five configurations.](PNG/thesis_figures/figure06_final_three_cases_8qv9kqn5/figure06_qualitative_three_validation_cases.png)
+
+*Figure 06. Three representative validation cases showing a Proposed Model advantage, typical performance, and a competitor advantage.*
+
+The configurations use different architectures, parameter counts, and frozen thresholds. This comparison evaluates complete operating configurations. It does not isolate the causal effect of global context independently of the other design differences.
+
+## 8.4 Final Segmentation Performance
+
+The selected Proposed Model achieved the segmentation results shown in Table 8. The model was evaluated using the fixed threshold of 0.49. The full-image evaluation used the complete image canvas without field-of-view clipping.
+
+| Metric | Image mean | Pooled/micro |
+|---|---:|---:|
+| Dice | 0.924268 | 0.939285 |
+| Precision | 0.938817 | 0.946943 |
+| Sensitivity | 0.915434 | 0.931750 |
+| ROC-AUC* | 0.990784 | 0.994744 |
+| clDice | 0.923031 | 0.937156 |
+
+Image-mean values represent the average of the per-image metrics, whereas pooled/micro values are calculated over the combined pixel counts. The two aggregation methods provide complementary views of segmentation performance.
+
+*ROC-AUC is a 4,096-bin histogram approximation. It is not an exact continuous-score AUC.*
+
+Figure 07 presents representative segmentation examples, including a strong result, a result near the median, and a challenging case. These examples illustrate image-level variation and should be interpreted alongside the aggregate metrics.
+
+![Figure 07. Proposed Model segmentation examples on FIVES.](PNG/thesis_figures/figure07_final_corev1_test_tlk2wbfi/figure07_final_corev1_fives_test.png)
+
+*Figure 07. Full-image and ground-truth-guided region comparisons for three representative FIVES images.*
+
+## 8.5 Thin-Vessel Errors and Biomarker Reliability (RQ2)
+
+Thin vessels were defined as ground-truth vessel regions with an estimated width of 4 pixels or less. The thin-vessel false-negative (FN) rate was calculated as the number of missed thin-vessel pixels divided by the total number of thin ground-truth pixels. The thin-vessel mask was constructed before field-of-view restriction.
+
+Spearman correlation was used to examine the relationship between thin-vessel FN rate and absolute biomarker error. The saved analyses report paired image-level bootstrap 95% confidence intervals and Benjamini-Hochberg (BH) adjusted q-values.
+
+| Split | Biomarker | Spearman ρ | Bootstrap 95% CI | BH q-value | Highest/lowest FN-quartile MAE ratio |
+|---|---|---:|---:|---:|---:|
+| Validation (n=179) | VD | 0.155280 | [-0.003650, 0.306000] | 0.037940 | 1.80× |
+| Validation (n=179) | CD | 0.662130 | [0.564170, 0.742280] | <0.00001 | 4.06× |
+| Validation (n=179) | FD | 0.435540 | [0.305360, 0.554090] | <0.00001 | 2.39× |
+| Test (n=200) | VD | 0.245463 | [0.098534, 0.377239] | 4.594165e-04 | 2.10× |
+| Test (n=200) | CD | 0.551963 | [0.439399, 0.659782] | 7.257549e-17 | 2.65× |
+| Test (n=200) | FD | 0.344599 | [0.209307, 0.457421] | 8.747227e-07 | 2.37× |
+
+CD showed the strongest association with thin-vessel FN rate in both splits. On the held-out test set, all three associations remained significant after BH correction. The highest-FN quartile also had larger MAE than the lowest-FN quartile for all three biomarkers.
+
+The validation VD result requires care. Its BH q-value was below 0.05, but its bootstrap confidence interval slightly crossed zero. This result should not be interpreted as strong evidence on its own.
+
+Figure 08 illustrates a test image selected from the 50 images with the highest thin-vessel FN rates. The selected image had a thin-vessel FN rate of 0.644309, with 4,534 missed pixels among 7,037 thin ground-truth pixels. Figure 09 shows the test-set associations and the quartile-based MAE comparison.
+
+![Figure 08. Thin-vessel identification and false-negative visualization.](PNG/thesis_figures/figure08_thin_vessel_fn_77rztffg/figure08_thin_vessel_identification_fn.png)
+
+*Figure 08. Ground-truth thin-vessel identification and missed thin-vessel regions for a representative FIVES test image.*
+
+![Figure 09. Thin-vessel FN rate and biomarker error associations.](PNG/thesis_figures/figure09_rq2_biomarker_association_m60k48ml/figure09_thin_fn_biomarker_associations.png)
+
+*Figure 09. Associations between thin-vessel FN rate and absolute VD, CD, and FD errors, with the highest-versus-lowest FN-quartile comparison.*
+
+## 8.6 Uncertainty and Biomarker Reliability (RQ2)
+
+Four image-level signals were examined: Core-v1 predictive entropy, six-view TTA variance, six-view TTA JSD, and entropy of the mean TTA probability. Their relationships with absolute VD, CD, and FD errors were measured using Spearman correlation.
+
+TTA variance and TTA JSD measure disagreement across transformed views. They are not direct or calibrated measures of epistemic uncertainty. The table reports Spearman ρ as validation/test pairs.
+
+| Biomarker error | Core entropy | TTA variance | TTA JSD | Entropy of mean |
+|---|---:|---:|---:|---:|
+| VD | 0.107 / 0.178 | 0.214 / 0.341 | 0.223 / 0.344 | 0.186 / 0.253 |
+| CD | 0.082 / 0.130 | 0.249 / 0.171 | 0.246 / 0.172 | 0.200 / 0.172 |
+| FD | -0.014 / -0.071 | 0.535 / 0.394 | 0.554 / 0.389 | 0.328 / 0.110 |
+
+*Each cell shows validation ρ / test ρ. Validation n=179; test n=200.*
+
+TTA variance and TTA JSD were positively associated with all three biomarker errors in both splits. Their strongest associations were with FD error. Core entropy was not significant for any validation outcome and was not significant for CD or FD on the test set. Entropy of the mean was not significant for FD on the test set. The remaining reported associations were significant after BH correction within their corresponding 12-test split.
+
+The validation and test estimates are presented descriptively. No formal hypothesis test was performed to compare the two splits. Figure 10 shows the predictive and TTA signals for a representative test image. Figure 11 presents the correlations and paired image-level bootstrap 95% confidence intervals.
+
+![Figure 10. Visual analysis of predictive and TTA uncertainty.](PNG/thesis_figures/figure10_predictive_tta_uncertainty_20261112_140103_UTC/figure10_visual_predictive_tta_uncertainty.png)
+
+*Figure 10. Predictive entropy, six-view TTA variance, and six-view TTA JSD for a representative FIVES test image.*
+
+![Figure 11. Uncertainty and biomarker error associations.](PNG/thesis_figures/figure11_uncertainty_biomarker_forest_34w0vn_e/figure11_uncertainty_biomarker_associations_updated.png)
+
+*Figure 11. Validation and test Spearman correlations with paired image-level bootstrap 95% confidence intervals. Asterisks indicate BH-adjusted q < 0.05 within the corresponding split.*
+
+## 8.7 Uncertainty-Guided Quality Review (RQ2)
+
+Images were ranked using four uncertainty signals. The top 5%, 10%, and 20% were selected for review. This corresponded to 9, 18, and 36 images on validation, and 10, 20, and 40 images on the test set. High-error cases were defined as the top 20% of images by absolute error for each biomarker. The saved random baseline used 10,000 uniform samples without replacement with seed 42. BH correction was applied across the 36 method, outcome, and budget comparisons within each split.
+
+At the 20% review budget, the TTA JSD ranking produced the following high-error recall:
+
+| Split | Biomarker | High-error cases captured | High-error recall | BH q-value | Better than random after FDR? |
+|---|---|---:|---:|---:|---|
+| Validation | VD | 15/36 | 0.416667 | 0.003600 | Yes |
+| Validation | CD | 11/36 | 0.305556 | 0.144671 | No |
+| Validation | FD | 20/36 | 0.555556 | 0.000900 | Yes |
+| Test | VD | 21/40 | 0.525000 | 0.000600 | Yes |
+| Test | CD | 13/40 | 0.325000 | 0.043346 | Yes |
+| Test | FD | 14/40 | 0.350000 | 0.017278 | Yes |
+
+The fixed-budget ranking and the frozen cutoff policy are separate evaluations. The ranking selects a fixed number of images. The policy applies a validation-derived numeric JSD cutoff of `0.0083761754351451` without changing it on the test set. Under the saved test policy, VD and FD each sent 163 of 200 images (81.5%) to manual review. Each policy captured 37 of 40 high-error cases (recall 0.925; precision 0.227). The CD policy sent all 200 images for manual review and captured all 40 high-error cases (recall 1.000; precision 0.200).
+
+The policy therefore had a high manual-review burden. These results do not show workload reduction. The validation protocol does not specify the JSD logarithm base or unit, while the test TTA protocol records JSD in bits. The numeric cutoff is reported without assigning a unit because this protocol detail is not fully consistent in the saved records.
+
+![Figure 12. Uncertainty-guided quality review and review-budget evaluation.](PNG/thesis_figures/figure12_rq4_quality_review__jeh0k05/figure12_uncertainty_guided_quality_review.png)
+
+*Figure 12. Review-budget ranking results for four uncertainty signals and the frozen validation-derived policy evaluated on the FIVES test set. The test random-baseline band is an envelope of saved intervals, not a newly calculated confidence interval.*
+
+## 8.8 External Evaluation on CHASE_DB1
+
+The Proposed Model was evaluated on the eight-image CHASE_DB1 test set using the first manual annotation and the provided evaluation field-of-view mask. The threshold remained 0.49, as selected on FIVES validation. No CHASE-specific model training or threshold tuning was performed.
+
+| Metric | Image-level summary | Pooled/micro |
+|---|---:|---:|
+| Dice | Mean: 0.738710; median: 0.741809 | 0.738769 |
+| Precision | Not reported in the saved summary | 0.626575 |
+| Sensitivity | Not reported in the saved summary | 0.899904 |
+| Specificity | Not reported in the saved summary | 0.964135 |
+| Accuracy | Not reported in the saved summary | 0.960109 |
+| ROC-AUC | Mean: 0.973705 | 0.973713 |
+| clDice | Mean: 0.815358 | 0.815641 |
+
+The external thin-vessel analysis did not show a significant association after BH correction. The saved Spearman correlations were 0.380952 for VD, 0.000000 for CD, and 0.142857 for FD; all adjusted q-values were 1. The quartile groups contained only two images each and are therefore unstable.
+
+None of the 12 uncertainty–biomarker associations on the CHASE_DB1 test set remained significant after BH correction. Subject-level summaries based on four subjects are descriptive only.
+
+The frozen FIVES review policy was also applied without recalibration. For VD, 7 of 8 images were sent to manual review and 1 of 2 high-error cases was captured. For CD, all 8 images were reviewed and 2 of 2 high-error cases were captured. For FD, 7 of 8 images were reviewed and 2 of 2 high-error cases were captured. No external policy comparison beat random selection after FDR correction. These counts are descriptive and do not establish policy effectiveness on external data.
+
+CHASE_DB1 results are limited to eight images from four subjects. They do not establish robust generalization, clinical utility, or clinical readiness.
+
+![Figure 13. External evaluation on CHASE_DB1.](PNG/thesis_figures/figure13_chase_db1_external_dm_mhu74/figure13_chase_db1_external_evaluation.png)
+
+*Figure 13. Per-image segmentation examples and summary results for the eight-image CHASE_DB1 external test set.*
+
+<!-- Evidence map: 8.1 figure02_representative_samples.csv and figure02_generation_protocol.json; 8.2 figure04_training_history_plotted.csv and figure04_generation_protocol.json; 8.3 rq1_configuration_summary.csv, figure05_plotted_validation_metrics.csv, figure06_three_case_selection.csv and figure06_generation_metadata.json; 8.4 core_v1_test_summary_20261103_183509_UTC.csv, core_v1_test_per_image_20261103_183509_UTC.csv and core_v1_test_protocol_20261103_183509_UTC.json; 8.5 rq2_test_thin_fn_measurement_correlations.csv, rq2_test_thin_fn_quartile_summary.csv, figure08_test_case_selection.csv and figure09_saved_correlation_and_quartile_statistics.csv; 8.6 rq3_test_primary_uncertainty_error_correlations.csv, rq3_test_analysis_protocol.json and figure11_validation_vs_test_correlation_data_updated.csv; 8.7 figure12_review_budget_plot_data.csv, figure12_frozen_policy_plot_data.csv and figure12_generation_metadata.json; 8.8 figure13_chase_test_per_image_dice_cldice_and_roi.csv and CHASE_DB1_CORE_V1_SPLIT_SUMMARY.csv. -->
+

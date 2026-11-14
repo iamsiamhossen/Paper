@@ -75,8 +75,7 @@ The CHASE_DB1 external test evaluation is limited to eight images from four subj
 9. [Overall Findings](#9-overall-findings)
 10. [Limitations](#10-limitations)
 11. [Conclusion and Future Work](#11-conclusion-and-future-work)
-12. [Reproducibility and Research Resources](#12-reproducibility-and-research-resources)
-13. [References](#13-references)
+12. [References](#13-references)
 
 # 1. Research Background
 
@@ -511,3 +510,50 @@ Future work should focus on the following areas:
 
 The main contribution of this work is an evaluation framework that connects retinal vessel segmentation errors with downstream biomarker reliability and image-level quality review.
 
+# 12. References
+
+The references below support the studies discussed in the literature review and the datasets, architectures, and evaluation methods used in this project. Journal and conference papers are linked through their publisher or DOI records. Preprints are identified as preprints.
+
+## 13.1 Research Papers
+
+[1] J. Zhang, Y. Zhang, H. Qiu, W. Xie, Z. Yao, H. Yuan, Q. Jia, T. Wang, Y. Shi, M. Huang, J. Zhuang, and X. Xu, “Pyramid-Net: Intra-layer Pyramid-Scale Feature Aggregation Network for Retinal Vessel Segmentation,” *Frontiers in Medicine*, vol. 8, Art. no. 761050, 2021. [https://doi.org/10.3389/fmed.2021.761050](https://doi.org/10.3389/fmed.2021.761050)
+
+[2] J. Ding, Z. Zhang, J. Tang, and F. Guo, “A Multichannel Deep Neural Network for Retina Vessel Segmentation via a Fusion Mechanism,” *Frontiers in Bioengineering and Biotechnology*, vol. 9, Art. no. 697915, 2021. [https://doi.org/10.3389/fbioe.2021.697915](https://doi.org/10.3389/fbioe.2021.697915)
+
+[3] A. Khanal and R. Estrada, “Dynamic Deep Networks for Retinal Vessel Segmentation,” *Frontiers in Computer Science*, vol. 2, Art. no. 35, 2020. [https://doi.org/10.3389/fcomp.2020.00035](https://doi.org/10.3389/fcomp.2020.00035)
+
+[4] Y. Jiang, H. Yao, C. Wu, and W. Liu, “A Multi-Scale Residual Attention Network for Retinal Vessel Segmentation,” *Symmetry*, vol. 13, no. 1, Art. no. 24, 2021. [https://doi.org/10.3390/sym13010024](https://doi.org/10.3390/sym13010024)
+
+[5] A. Eid, M. Aydin, and Z. Kuş, “Multi-teacher based knowledge distillation for retinal vessel segmentation,” *Health Information Science and Systems*, vol. 13, Art. no. 39, 2025. [https://doi.org/10.1007/s13755-025-00356-4](https://doi.org/10.1007/s13755-025-00356-4)
+
+[6] “Repeatability and Reproducibility of Retinal Fractal Dimension Measured with Swept-Source Optical Coherence Tomography Angiography in Healthy Eyes: A Proof-of-Concept Study,” *Diagnostics*, vol. 12, no. 7, Art. no. 1769, 2022. [https://doi.org/10.3390/diagnostics12071769](https://doi.org/10.3390/diagnostics12071769)
+
+[7] Y. Zhou, T. S. Ahmed, M. Wang, E. A. Newman, L. Schmetterer, H. Fu, J. Cheng, and B. Tan, “Masked Vascular Structure Segmentation and Completion in Retinal Images,” *IEEE Transactions on Medical Imaging*, vol. 44, no. 6, pp. 2492–2503, 2025. [https://doi.org/10.1109/TMI.2025.3538336](https://doi.org/10.1109/TMI.2025.3538336)
+
+[8] S. Hua, T. Chen, Y. Mi, Y. Shen, Y. Li, J. Zhang, and Y. Ji, “Vision–language semantic guidance and topology refinement for robust retinal vessel segmentation and biomarker analysis in cerebral small vessel disease,” *Frontiers in Cell and Developmental Biology*, vol. 14, Art. no. 1940436, 2026. [https://doi.org/10.3389/fcell.2026.1940436](https://doi.org/10.3389/fcell.2026.1940436)
+
+[9] J. Fadugba, P. Köhler, L. Koch, P. Manescu, and P. Berens, “Benchmarking Retinal Blood Vessel Segmentation Models for Cross-Dataset and Cross-Disease Generalization,” arXiv preprint arXiv:2406.14994, 2024. [https://arxiv.org/abs/2406.14994](https://arxiv.org/abs/2406.14994)
+
+[10] P. Köhler, J. Fadugba, P. Berens, and L. M. Koch, “Efficiently correcting patch-based segmentation errors to control image-level performance in retinal images,” in *Proceedings of the 7th International Conference on Medical Imaging with Deep Learning*, Proceedings of Machine Learning Research, vol. 250, pp. 841–856, 2024. [https://proceedings.mlr.press/v250/kohler24a.html](https://proceedings.mlr.press/v250/kohler24a.html)
+
+[11] J. Vargas Quiros, B. Liefers, K. A. van Garderen, J. P. Vermeulen, and C. Klaver, “VascX Models: Deep Ensembles for Retinal Vascular Analysis From Color Fundus Images,” *Translational Vision Science & Technology*, vol. 14, no. 7, Art. no. 19, 2025. [https://doi.org/10.1167/tvst.14.7.19](https://doi.org/10.1167/tvst.14.7.19)
+
+[12] Z. Wang, X. Chen, Z. Wang, P. Shao, Y. Luan, Y. Hu, X. Kang, X. Han, and Z. Wang, “LFU-Net: LoRA-enhanced frequency-aware U-Net with recursive residual attention fusion for retinal segmentation,” *Scientific Reports*, vol. 16, Art. no. 20310, 2026. [https://doi.org/10.1038/s41598-026-50642-8](https://doi.org/10.1038/s41598-026-50642-8)
+
+[13] H. Shu, Q. Yuan, Y. Pan, W. Kong, Y. Feng, C. Peng, K. Li, L.-M. Nguyen, T. Racharak, J. Xin, and G. Sun, “Morphology-aware distillation for lightweight retinal vessel segmentation across fundus photography and OCT angiography,” *Frontiers in Cell and Developmental Biology*, vol. 14, Art. no. 1825518, 2026. [https://doi.org/10.3389/fcell.2026.1825518](https://doi.org/10.3389/fcell.2026.1825518)
+
+## 13.2 Dataset References
+
+[14] K. Jin, X. Huang, J. Zhou, Y. Li, Y. Yan, Y. Sun, Q. Zhang, Y. Wang, and J. Ye, “FIVES: A Fundus Image Dataset for Artificial Intelligence based Vessel Segmentation,” *Scientific Data*, vol. 9, Art. no. 475, 2022. [https://doi.org/10.1038/s41597-022-01564-3](https://doi.org/10.1038/s41597-022-01564-3)
+
+[15] M. M. Fraz, P. Remagnino, A. Hoppe, B. Uyyanonvara, A. R. Rudnicka, C. G. Owen, and S. A. Barman, “An Ensemble Classification-Based Approach Applied to Retinal Blood Vessel Segmentation,” *IEEE Transactions on Biomedical Engineering*, vol. 59, no. 9, pp. 2538–2548, 2012. [https://doi.org/10.1109/TBME.2012.2205687](https://doi.org/10.1109/TBME.2012.2205687)
+
+## 13.3 Architecture and Evaluation References
+
+[16] O. Ronneberger, P. Fischer, and T. Brox, “U-Net: Convolutional Networks for Biomedical Image Segmentation,” in *Medical Image Computing and Computer-Assisted Intervention – MICCAI 2015*, Lecture Notes in Computer Science, vol. 9351, pp. 234–241, 2015. [https://doi.org/10.1007/978-3-319-24574-4_28](https://doi.org/10.1007/978-3-319-24574-4_28)
+
+[17] S. Shit, J. C. Paetzold, A. Sekuboyina, I. Ezhov, A. Unger, A. Zhylka, J. P. W. Pluim, U. Bauer, and B. H. Menze, “clDice – A Novel Topology-Preserving Loss Function for Tubular Structure Segmentation,” in *Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)*, pp. 16560–16569, 2021. [https://doi.org/10.1109/CVPR46437.2021.01629](https://doi.org/10.1109/CVPR46437.2021.01629)
+
+---
+
+**Reference note:** The previously listed MVCN paper (DOI: 10.1016/j.compbiomed.2025.109982) has been excluded because a retraction notice was published in November 2026. It should not be cited as an active research contribution. The reference list above contains only the retained papers and sources; the retracted paper must also be removed from the Literature Matrix and any in-text discussion.

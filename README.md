@@ -14,7 +14,7 @@ This study investigates retinal vessel segmentation, thin-vessel recovery, bioma
 
 The study addresses two main research questions:
 
-**RQ1:** Does native-resolution processing with global context improve retinal vessel segmentation and thin-vessel recovery?
+**RQ1:** Does adding global context to native-resolution patches improve retinal vessel segmentation and thin-vessel recovery?
 
 **RQ2:** How are segmentation errors and uncertainty related to biomarker estimation errors, and can uncertainty help identify images for quality review?
 
@@ -75,7 +75,7 @@ The CHASE_DB1 external test evaluation is limited to eight images from four subj
 9. [Overall Findings](#9-overall-findings)
 10. [Limitations](#10-limitations)
 11. [Conclusion and Future Work](#11-conclusion-and-future-work)
-12. [References](#13-references)
+12. [References](#12-references)
 
 # 1. Research Background
 
@@ -107,27 +107,26 @@ Furthermore, segmentation performance alone does not indicate how uncertainty re
 
 # 3. Literature Review
 
-This section reviews 15 studies published between 2020 and 2026. The selected studies cover retinal vessel segmentation, thin-vessel recovery, contextual feature learning, vascular connectivity, biomarker reliability, and uncertainty-guided quality control. Five additional studies directly use the FIVES dataset.
+This section reviews 14 studies published between 2020 and 2026. The selected studies cover retinal vessel segmentation, thin-vessel recovery, contextual feature learning, vascular connectivity, biomarker reliability, and uncertainty-guided quality control. Five of the reviewed studies directly use the FIVES dataset.
 
 ## 3.1 Literature Matrix
 
 | # | Paper | Model / Exact Method | Dataset and Image Count | Reported Numerical Results | Contribution | Limitation |
 |---|---|---|---|---|---|---|
-| **1** | [Pyramid-Net (2021)](https://doi.org/10.3389/fmed.2021.761050) | Pyramid-Net with Intra-layer Pyramid-scale Aggregation Blocks (IPABs), Pyramid Input Enhancement and Deep Pyramid Supervision. | DRIVE (40), STARE (20), CHASE-DB1 (28). | DRIVE: Sensitivity 82.38%, Accuracy 96.26%, AUC 98.32%. Thin-vessel accuracy: **91.64%**, vs. 86.91% for CE-Net. | Preserves multi-scale features for narrow-vessel detection and evaluates thin vessels separately. | Does not examine thin-vessel FN effects on VD, CD or FD errors. |
-| **2** | [Multichannel DNN (2021)](https://doi.org/10.3389/fbioe.2021.697915) | Three U-Net learning branches for original, thin and thick vessels, followed by probability-map fusion. Width threshold: 2.2 pixels. | DRIVE (40), STARE (20), IOSTAR (30). | DRIVE: F1 82.47%, Sensitivity 81.40%. Thin-vessel Sensitivity: **76.77%**, Specificity 97.79%. | Uses vessel-width-specific supervision to improve thin- and thick-vessel segmentation. | Thin-vessel sensitivity was lower than the comparison method's 81.70%. No downstream biomarker-error analysis. |
-| **3** | [Dynamic Deep Networks (2020)](https://doi.org/10.3389/fcomp.2020.00035) | Dynamic U-Net with targeted prediction using a second Mini-U-Net for ambiguous vessel regions. | DRIVE (40), STARE (20), CHASE-DB (28), AV-WIDE (30), VEVIO (16 frames and 16 mosaics); 150 images/frames/mosaics. | DRIVE: Precision 82.84%, Recall 82.35%, F1 82.59%, Accuracy 96.93%. | Uses dynamic class weighting and targeted refinement to detect faint and ambiguous vessels. | Two-stage processing requires an additional network. Remaining thin-vessel FN effects on biomarkers are not evaluated. |
-| **4** | [Multi-Scale Residual Attention Network (2021)](https://doi.org/10.3390/sym13010024) | MRA-UNet with Residual Attention, Bottom Reconstruction and Spatial Activation modules. | DRIVE (40), CHASE (28), STARE (20). | On DRIVE, RA+BR improved F-measure by 2.1 percentage points over MUNet. Adding SA improved sensitivity by another 4.46 points. | Uses multi-scale attention and feature reconstruction to preserve small-vessel details. | Focuses on segmentation metrics, not biomarker reliability or uncertainty-guided review. |
-| **5** | [Multi-teacher Knowledge Distillation (2025)](https://doi.org/10.1007/s13755-025-00356-4) | MTKD-UNet with separate original-, thin- and thick-vessel U-Net teachers and one student network. | DRIVE (40), CHASEDB1 (28), CHUAC (30), DCA1 (134); 232 images. | DRIVE: F1 80.74%; penalized variant 81.66%. CHASEDB1: F1 77.48%; penalized variant 79.95%. | Transfers vessel-specific knowledge from multiple teachers to a single student model. | Does not evaluate VD/CD/FD measurement errors or image-level uncertainty-based quality review. |
-| **6** | [Retinal Fractal Dimension Repeatability (2022)](https://doi.org/10.3390/diagnostics12071769) | Automated SS-OCTA segmentation and box-counting fractal dimension measurement. Repeatability assessed using ICC. | 43 eyes from 43 healthy volunteers; 3 scans per participant. | Repeatability ICC: 0.722 (superficial) and 0.828 (deep). Reproducibility ICC: 0.651 and 0.363, respectively. | Shows that retinal FD measurements are affected by acquisition and observer variability. | Uses SS-OCTA rather than colour fundus images. Does not examine segmentation-induced FD errors. |
-| **7** | [Ensuring a Connected Structure for Retinal Vessels (2023)](https://openaccess.thecvf.com/content/ICCV2023W/CVAMD/papers/Dulau_Ensuring_a_Connected_Structure_for_Retinal_Vessels_Deep-Learning_Segmentation_ICCVW_2023_paper.pdf) | Vessels Network Retrieval (VNR): Gap Filling and Rebranch or Remove post-processing. | DRIVE, DUALMODAL2019, HRF and LESAV; 137 images. | clDice-based predictions: mean connected components **174 → 1**, while Dice changed from 0.839 to 0.840. | Reduces vessel fragmentation while maintaining similar Dice performance. | Some reconnections may be anatomically incorrect, and genuine small components may be removed. |
-| **8** | [MaskVSC (2025)](https://doi.org/10.1109/TMI.2025.3538336) | TopoMask, connectivity loss and Vision GNN post-processing for masked-vessel reconstruction. | Fundus: DRIVE (40), STARE (20), RITE (40), LES-AV (21). OCTA: ROSE-1 (117), OCTA-500 (500). 2PFM: 405 images. | DRIVE U-Net Dice 75.93% → **80.30%** with MaskVSC. clDice 78.06% → 84.57%. Betti-0 error 10.3 → 1.99. | Learns to reconstruct missing vessel segments and improves structural connectivity. | Primarily designed for 2D images; the authors identify limited disease diversity and 3D extension as future work. |
-| **9** | [MVCN (2025)](https://doi.org/10.1016/j.compbiomed.2025.109982) | Multi-branch Vessel-shaped Convolution Network with MHEM, directional vessel convolutions and uncertainty-based vessel sub-labels. | DRIVE (40), CHASE_DB1 (28), STARE (20), HRF (45); 133 images. | AUC: 98.31–98.83%; Accuracy: 95.83–97.09% across four datasets. | Combines high-resolution features, vessel-shape information and epistemic uncertainty. | Does not evaluate per-image VD/CD/FD measurement errors or image-level review prioritization. |
-| **10** | [SemTopNet (2026)](https://doi.org/10.3389/fcell.2026.1940436) | Transformer semantic-topology branch, centerline refinement and Monte Carlo Dropout uncertainty supervision. | OCTA: 120 CSVD patients and 40 healthy controls. Exact segmentation image count not separately reported. Biomarker cohort: 40 CSVD and 40 healthy participants. | Dice 0.8931, clDice 0.9027, Recall 0.9293, AUC 0.9567. | Combines uncertainty-aware segmentation, topology refinement and vascular biomarker analysis. | Uses OCTA rather than RGB fundus images. Does not link thin-vessel FN rates to per-image VD/CD/FD errors or fixed-budget review. |
-| **11** | [Fadugba et al. — Segmentation Benchmark (2024)](https://arxiv.org/abs/2406.14994) | U-Net, FR-UNet, MA-Net, SA-UNet and W-Net; four loss functions: BCE, Dice, DiceBCE and clDice. | **FIVES (800):** 600 train, 200 test; resized to 512×512. | Best: FR-UNet + DiceBCE, Dice **90.37%**, MCC **89.80%**. U-Net + DiceBCE: Dice 90.15%. | Provides a controlled benchmark of five architectures and four loss functions on FIVES. | Image quality strongly affects segmentation results. Does not investigate biomarker measurement errors or uncertainty-guided review. |
-| **12** | [Köhler et al. — Uncertainty-Guided Patch Review (2024)](https://proceedings.mlr.press/v250/kohler24a.html) | Five-seed FR-UNet ensemble, pixel-wise entropy and top-ranked non-overlapping 81×81 patches for manual review. | **FIVES (800):** 600 train, 120 validation, 200 test; resized to 512×512. | Initial test Dice: **0.887 ± 0.094**. Five-patch review increased median Dice by over 0.02. Average 3.2 patches/image reached a quality standard near 0.90. DSC estimator MAE: 0.02. | Uses uncertainty maps to select local segmentation regions for manual correction. | Assumes reviewed patches receive perfect correction. Focuses on Dice improvement rather than biomarker-specific image-level review. |
-| **13** | [Vargas Quiros et al. — VascX Models (2025)](https://doi.org/10.1167/tvst.14.7.19) | Deep U-Net ensembles for vessel, artery-vein and optic-disc segmentation and fovea localization. | **FIVES (800)** included in model evaluation; development also uses more than 15 annotated datasets and Dutch study images. Feature agreement evaluated separately on 215 Rotterdam fundus images. | FIVES Dice: VascX 0.832, AutoMorph 0.824, LittleWNet 0.756. On Rotterdam, 14/24 features had significantly lower MAE than AutoMorph and 23/24 than LittleWNet. | Connects segmentation outputs with quantitative vascular-feature accuracy. | Feature MAE results come from Rotterdam, not FIVES. Does not examine our specific thin-FN versus VD/CD/FD error relationship. |
-| **14** | [Wang et al. — LFU-Net (2026)](https://doi.org/10.1038/s41598-026-50642-8) | MobileNetV2, Frequency-Aware Encoder, hierarchical FreqTokenLoRA and Recursive Residual Attention Fusion. | **FIVES (800):** 600 train, independent 200 test. | Dice **85.00%**, IoU 73.90%, Sensitivity 81.90%, Faint Vessel Dice **77.50%**. AutoMorph Faint Vessel Dice: 66.50%. | Directly evaluates faint-vessel recovery using a separate width-based metric. | Faint-vessel evaluation uses a diameter-below-2-pixel definition. Does not evaluate downstream VD/CD/FD errors. |
-| **15** | [Shu et al. — Morphology-Aware Reconstruction Distillation (2026)](https://doi.org/10.3389/fcell.2026.1825518) | MRD with Hierarchical Structure Fusion (HSF), Fuse Cross Stage Feature, Selective Fusion and Residual Gating. Uses decoder-focused knowledge distillation and Hierarchical Context Loss. | **FIVES (800)** at 2048×2048. Figure 8 describes 200 test cases; the exact train/test split is not specified in the dataset description. Also uses DRIVE and ROSE. | Dice **90.01%**, mIoU 82.84%, Hausdorff Distance 5.95, parameters 8.14M. MambaUNet Dice: 90.47%. | Preserves fine-vessel morphology and topology through lightweight decoder distillation. | Designed for U-shaped architectures. The authors identify cross-centre variability, 3D scaling and limited gains on simpler segmentation tasks as remaining issues. 
+| **1** | [Pyramid-Net (2021)](https://doi.org/10.3389/fmed.2021.761050) [1] | Pyramid-Net with Intra-layer Pyramid-scale Aggregation Blocks (IPABs), Pyramid Input Enhancement and Deep Pyramid Supervision. | DRIVE (40), STARE (20), CHASE-DB1 (28). | DRIVE: Sensitivity 82.38%, Accuracy 96.26%, AUC 98.32%. Thin-vessel accuracy: **91.64%**, vs. 86.91% for CE-Net. | Preserves multi-scale features for narrow-vessel detection and evaluates thin vessels separately. | Does not examine thin-vessel FN effects on VD, CD or FD errors. |
+| **2** | [Multichannel DNN (2021)](https://doi.org/10.3389/fbioe.2021.697915) [2] | Three U-Net learning branches for original, thin and thick vessels, followed by probability-map fusion. Width threshold: 2.2 pixels. | DRIVE (40), STARE (20), IOSTAR (30). | DRIVE: F1 82.47%, Sensitivity 81.40%. Thin-vessel Sensitivity: **76.77%**, Specificity 97.79%. | Uses vessel-width-specific supervision to improve thin- and thick-vessel segmentation. | Thin-vessel sensitivity was lower than the comparison method's 81.70%. No downstream biomarker-error analysis. |
+| **3** | [Dynamic Deep Networks (2020)](https://doi.org/10.3389/fcomp.2020.00035) [3] | Dynamic U-Net with targeted prediction using a second Mini-U-Net for ambiguous vessel regions. | DRIVE (40), STARE (20), CHASE-DB (28), AV-WIDE (30), VEVIO (16 frames and 16 mosaics); 150 images/frames/mosaics. | DRIVE: Precision 82.84%, Recall 82.35%, F1 82.59%, Accuracy 96.93%. | Uses dynamic class weighting and targeted refinement to detect faint and ambiguous vessels. | Two-stage processing requires an additional network. Remaining thin-vessel FN effects on biomarkers are not evaluated. |
+| **4** | [Multi-Scale Residual Attention Network (2021)](https://doi.org/10.3390/sym13010024) [4] | MRA-UNet with Residual Attention, Bottom Reconstruction and Spatial Activation modules. | DRIVE (40), CHASE (28), STARE (20). | On DRIVE, RA+BR improved F-measure by 2.1 percentage points over MUNet. Adding SA improved sensitivity by another 4.46 points. | Uses multi-scale attention and feature reconstruction to preserve small-vessel details. | Focuses on segmentation metrics, not biomarker reliability or uncertainty-guided review. |
+| **5** | [Multi-teacher Knowledge Distillation (2025)](https://doi.org/10.1007/s13755-025-00356-4) [5] | MTKD-UNet with separate original-, thin- and thick-vessel U-Net teachers and one student network. | DRIVE (40), CHASEDB1 (28), CHUAC (30), DCA1 (134); 232 images. | DRIVE: F1 80.74%; penalized variant 81.66%. CHASEDB1: F1 77.48%; penalized variant 79.95%. | Transfers vessel-specific knowledge from multiple teachers to a single student model. | Does not evaluate VD/CD/FD measurement errors or image-level uncertainty-based quality review. |
+| **6** | [Retinal Fractal Dimension Repeatability (2022)](https://doi.org/10.3390/diagnostics12071769) [6] | Automated SS-OCTA segmentation and box-counting fractal dimension measurement. Repeatability assessed using ICC. | 43 eyes from 43 healthy volunteers; 3 scans per participant. | Repeatability ICC: 0.722 (superficial) and 0.828 (deep). Reproducibility ICC: 0.651 and 0.363, respectively. | Shows that retinal FD measurements are affected by acquisition and observer variability. | Uses SS-OCTA rather than colour fundus images. Does not examine segmentation-induced FD errors. |
+| **7** | [Ensuring a Connected Structure for Retinal Vessels (2023)](https://openaccess.thecvf.com/content/ICCV2023W/CVAMD/papers/Dulau_Ensuring_a_Connected_Structure_for_Retinal_Vessels_Deep-Learning_Segmentation_ICCVW_2023_paper.pdf) [7] | Vessels Network Retrieval (VNR): Gap Filling and Rebranch or Remove post-processing. | DRIVE, DUALMODAL2019, HRF and LESAV; 137 images. | clDice-based predictions: mean connected components **174 → 1**, while Dice changed from 0.839 to 0.840. | Reduces vessel fragmentation while maintaining similar Dice performance. | Some reconnections may be anatomically incorrect, and genuine small components may be removed. |
+| **8** | [MaskVSC (2025)](https://doi.org/10.1109/TMI.2025.3538336) [8] | TopoMask, connectivity loss and Vision GNN post-processing for masked-vessel reconstruction. | Fundus: DRIVE (40), STARE (20), RITE (40), LES-AV (21). OCTA: ROSE-1 (117), OCTA-500 (500). 2PFM: 405 images. | DRIVE U-Net Dice 75.93% → **80.30%** with MaskVSC. clDice 78.06% → 84.57%. Betti-0 error 10.3 → 1.99. | Learns to reconstruct missing vessel segments and improves structural connectivity. | Primarily designed for 2D images; the authors identify limited disease diversity and 3D extension as future work. |
+| **9** | [SemTopNet (2026)](https://doi.org/10.3389/fcell.2026.1940436) [9] | Transformer semantic-topology branch, centerline refinement and Monte Carlo Dropout uncertainty supervision. | OCTA: 120 CSVD patients and 40 healthy controls. Exact segmentation image count not separately reported. Biomarker cohort: 40 CSVD and 40 healthy participants. | Dice 0.8931, clDice 0.9027, Recall 0.9293, AUC 0.9567. | Combines uncertainty-aware segmentation, topology refinement and vascular biomarker analysis. | Uses OCTA rather than RGB fundus images. Does not link thin-vessel FN rates to per-image VD/CD/FD errors or fixed-budget review. |
+| **10** | [Fadugba et al. — Segmentation Benchmark (2024)](https://arxiv.org/abs/2406.14994) [10] | U-Net, FR-UNet, MA-Net, SA-UNet and W-Net; four loss functions: BCE, Dice, DiceBCE and clDice. | **FIVES (800):** 600 train, 200 test; resized to 512×512. | Best: FR-UNet + DiceBCE, Dice **90.37%**, MCC **89.80%**. U-Net + DiceBCE: Dice 90.15%. | Provides a controlled benchmark of five architectures and four loss functions on FIVES. | Image quality strongly affects segmentation results. Does not investigate biomarker measurement errors or uncertainty-guided review. |
+| **11** | [Köhler et al. — Uncertainty-Guided Patch Review (2024)](https://proceedings.mlr.press/v250/kohler24a.html) [11] | Five-seed FR-UNet ensemble, pixel-wise entropy and top-ranked non-overlapping 81×81 patches for manual review. | **FIVES (800):** 600 train, 120 validation, 200 test; resized to 512×512. | Initial test Dice: **0.887 ± 0.094**. Five-patch review increased median Dice by over 0.02. Average 3.2 patches/image reached a quality standard near 0.90. DSC estimator MAE: 0.02. | Uses uncertainty maps to select local segmentation regions for manual correction. | Assumes reviewed patches receive perfect correction. Focuses on Dice improvement rather than biomarker-specific image-level review. |
+| **12** | [Vargas Quiros et al. — VascX Models (2025)](https://doi.org/10.1167/tvst.14.7.19) [12] | Deep U-Net ensembles for vessel, artery-vein and optic-disc segmentation and fovea localization. | **FIVES (800)** included in model evaluation; development also uses more than 15 annotated datasets and Dutch study images. Feature agreement evaluated separately on 215 Rotterdam fundus images. | FIVES Dice: VascX 0.832, AutoMorph 0.824, LittleWNet 0.756. On Rotterdam, 14/24 features had significantly lower MAE than AutoMorph and 23/24 than LittleWNet. | Connects segmentation outputs with quantitative vascular-feature accuracy. | Feature MAE results come from Rotterdam, not FIVES. Does not examine our specific thin-FN versus VD/CD/FD error relationship. |
+| **13** | [Wang et al. — LFU-Net (2026)](https://doi.org/10.1038/s41598-026-50642-8) [13] | MobileNetV2, Frequency-Aware Encoder, hierarchical FreqTokenLoRA and Recursive Residual Attention Fusion. | **FIVES (800):** 600 train, independent 200 test. | Dice **85.00%**, IoU 73.90%, Sensitivity 81.90%, Faint Vessel Dice **77.50%**. AutoMorph Faint Vessel Dice: 66.50%. | Directly evaluates faint-vessel recovery using a separate width-based metric. | Faint-vessel evaluation uses a diameter-below-2-pixel definition. Does not evaluate downstream VD/CD/FD errors. |
+| **14** | [Shu et al. — Morphology-Aware Reconstruction Distillation (2026)](https://doi.org/10.3389/fcell.2026.1825518) [14] | MRD with Hierarchical Structure Fusion (HSF), Fuse Cross Stage Feature, Selective Fusion and Residual Gating. Uses decoder-focused knowledge distillation and Hierarchical Context Loss. | **FIVES (800)** at 2048×2048. Figure 8 describes 200 test cases; the exact train/test split is not specified in the dataset description. Also uses DRIVE and ROSE. | Dice **90.01%**, mIoU 82.84%, Hausdorff Distance 5.95, parameters 8.14M. MambaUNet Dice: 90.47%. | Preserves fine-vessel morphology and topology through lightweight decoder distillation. | Designed for U-shaped architectures. The authors identify cross-centre variability, 3D scaling and limited gains on simpler segmentation tasks as remaining issues. 
 
 # 4. Research Gap
 
@@ -155,8 +154,8 @@ FIVES was used for model development and internal evaluation. Five segmentation 
 
 | Dataset | Images | Use |
 |---|---:|---|
-| FIVES | 798 | 419 training, 179 validation, 200 test |
-| CHASE_DB1 | 8 selected images from 4 subjects | External evaluation |
+| FIVES [15] | 798 | 419 training, 179 validation, 200 test |
+| CHASE_DB1 [16] | 8 selected images from 4 subjects | External evaluation |
 
 - Original FIVES image size: 2048 × 2048 RGB.
 - RGB normalization: [0, 1].
@@ -169,7 +168,7 @@ FIVES was used for model development and internal evaluation. Five segmentation 
 
 | Model | Configuration | Parameters | Threshold |
 |---|---|---:|---:|
-| M0 | Resized full-image U-Net | 117,361 | 0.65 |
+| M0 | Resized full-image U-Net [17] | 117,361 | 0.65 |
 | M1 | Native-resolution patch U-Net | 117,361 | 0.40 |
 | M2 | Native patches with global context | 634,113 | 0.35 |
 | Proposed Model | Multi-scale native and global context | 2,450,849 | 0.49 |
@@ -177,9 +176,9 @@ FIVES was used for model development and internal evaluation. Five segmentation 
 
 The proposed model combines native features with coordinate-aligned global features through gated fusion. The capacity-control model has a similar parameter count but does not use a global-context branch.
 
-![Proposed model architecture and inference workflow](assets/proposed_model_pipeline.png)
+![MS-NCVNet Core-v1 architecture](PNG/MS_NCVNet_Core_v1_Architecture.png)
 
-*Figure 1. Proposed model architecture and inference workflow.*
+*Figure 1. MS-NCVNet Core-v1 architecture, including multi-scale encoding, coordinate-aligned fusion, and decoding.*
 
 ### 6.4 Training Setup
 
@@ -206,7 +205,7 @@ M0, M1, and M2 were trained for up to 20 epochs. The proposed model and capacity
 
 Patch probabilities were mapped to their original coordinates and combined by uniform overlap averaging. The fixed threshold was applied after full-image reconstruction. The proposed-model threshold (0.49) was selected on the validation set by maximizing pooled micro Dice.
 
-Segmentation was evaluated using Dice, ROC-AUC, clDice, and thin-vessel recall. The validation set was used for configuration comparison; the held-out FIVES test set was reserved for final evaluation.
+Segmentation was evaluated using Dice, ROC-AUC, clDice [18], and thin-vessel recall. The validation set was used for configuration comparison; the held-out FIVES test set was reserved for final evaluation.
 
 ### 6.6 Thin-Vessel, Biomarker, and Uncertainty Analysis
 
@@ -334,11 +333,6 @@ Image-mean values represent the average of the per-image metrics, whereas pooled
 
 *ROC-AUC is a 4,096-bin histogram approximation. It is not an exact continuous-score AUC.*
 
-Figure 07 presents representative segmentation examples, including a strong result, a result near the median, and a challenging case. These examples illustrate image-level variation and should be interpreted alongside the aggregate metrics.
-
-![Figure 07. Proposed Model segmentation examples on FIVES.](PNG/thesis_figures/figure07_final_corev1_test_tlk2wbfi/figure07_final_corev1_fives_test.png)
-
-*Figure 07. Full-image and ground-truth-guided region comparisons for three representative FIVES images.*
 
 ## 8.5 Thin-Vessel Errors and Biomarker Reliability (RQ2)
 
@@ -391,7 +385,7 @@ The validation and test estimates are presented descriptively. No formal hypothe
 
 *Figure 10. Predictive entropy, six-view TTA variance, and six-view TTA JSD for a representative FIVES test image.*
 
-![Figure 11. Uncertainty and biomarker error associations.](PNG/thesis_figures/figure11_uncertainty_biomarker_forest_34w0vn_e/figure11_uncertainty_biomarker_associations_updated.png)
+![Figure 11. Uncertainty and biomarker error associations.](PNG/thesis_figures/figure11_uncertainty_biomarker_forest_34w0vn_e/figure11_uncertainty_biomarker_associations.png)
 
 *Figure 11. Validation and test Spearman correlations with paired image-level bootstrap 95% confidence intervals. Asterisks indicate BH-adjusted q < 0.05 within the corresponding split.*
 
@@ -444,7 +438,7 @@ CHASE_DB1 results are limited to eight images from four subjects. They do not es
 
 *Figure 13. Per-image segmentation examples and summary results for the eight-image CHASE_DB1 external test set.*
 
-<!-- Evidence map: 8.1 figure02_representative_samples.csv and figure02_generation_protocol.json; 8.2 figure04_training_history_plotted.csv and figure04_generation_protocol.json; 8.3 rq1_configuration_summary.csv, figure05_plotted_validation_metrics.csv, figure06_three_case_selection.csv and figure06_generation_metadata.json; 8.4 core_v1_test_summary_20261103_183509_UTC.csv, core_v1_test_per_image_20261103_183509_UTC.csv and core_v1_test_protocol_20261103_183509_UTC.json; 8.5 rq2_test_thin_fn_measurement_correlations.csv, rq2_test_thin_fn_quartile_summary.csv, figure08_test_case_selection.csv and figure09_saved_correlation_and_quartile_statistics.csv; 8.6 rq3_test_primary_uncertainty_error_correlations.csv, rq3_test_analysis_protocol.json and figure11_validation_vs_test_correlation_data_updated.csv; 8.7 figure12_review_budget_plot_data.csv, figure12_frozen_policy_plot_data.csv and figure12_generation_metadata.json; 8.8 figure13_chase_test_per_image_dice_cldice_and_roi.csv and CHASE_DB1_CORE_V1_SPLIT_SUMMARY.csv. -->
+<!-- Evidence map: 8.1 figure02_representative_samples.csv and figure02_generation_protocol.json; 8.2 figure04_training_history_plotted.csv and figure04_generation_protocol.json; 8.3 rq1_configuration_summary.csv, figure05_plotted_validation_metrics.csv, figure06_three_case_selection.csv and figure06_generation_metadata.json; 8.4 core_probability_maps/core_v1_probabilities.npy (179 validation images) and the revised-threshold full-image validation summary (threshold 0.49; full 2048×2048 canvas); 8.5 rq2_test_thin_fn_measurement_correlations.csv, rq2_test_thin_fn_quartile_summary.csv, figure08_test_case_selection.csv and figure09_saved_correlation_and_quartile_statistics.csv; 8.6 rq3_test_primary_uncertainty_error_correlations.csv, rq3_test_analysis_protocol.json and figure11_validation_vs_test_correlation_data_updated.csv; 8.7 figure12_review_budget_plot_data.csv, figure12_frozen_policy_plot_data.csv and figure12_generation_metadata.json; 8.8 figure13_chase_test_per_image_dice_cldice_and_roi.csv and CHASE_DB1_CORE_V1_SPLIT_SUMMARY.csv. -->
 
 
 ## 9. Overall Findings
@@ -514,7 +508,7 @@ The main contribution of this work is an evaluation framework that connects reti
 
 The references below support the studies discussed in the literature review and the datasets, architectures, and evaluation methods used in this project. Journal and conference papers are linked through their publisher or DOI records. Preprints are identified as preprints.
 
-## 13.1 Research Papers
+## 12.1 Research Papers
 
 [1] J. Zhang, Y. Zhang, H. Qiu, W. Xie, Z. Yao, H. Yuan, Q. Jia, T. Wang, Y. Shi, M. Huang, J. Zhuang, and X. Xu, “Pyramid-Net: Intra-layer Pyramid-Scale Feature Aggregation Network for Retinal Vessel Segmentation,” *Frontiers in Medicine*, vol. 8, Art. no. 761050, 2021. [https://doi.org/10.3389/fmed.2021.761050](https://doi.org/10.3389/fmed.2021.761050)
 
@@ -528,32 +522,36 @@ The references below support the studies discussed in the literature review and 
 
 [6] “Repeatability and Reproducibility of Retinal Fractal Dimension Measured with Swept-Source Optical Coherence Tomography Angiography in Healthy Eyes: A Proof-of-Concept Study,” *Diagnostics*, vol. 12, no. 7, Art. no. 1769, 2022. [https://doi.org/10.3390/diagnostics12071769](https://doi.org/10.3390/diagnostics12071769)
 
-[7] Y. Zhou, T. S. Ahmed, M. Wang, E. A. Newman, L. Schmetterer, H. Fu, J. Cheng, and B. Tan, “Masked Vascular Structure Segmentation and Completion in Retinal Images,” *IEEE Transactions on Medical Imaging*, vol. 44, no. 6, pp. 2492–2503, 2025. [https://doi.org/10.1109/TMI.2025.3538336](https://doi.org/10.1109/TMI.2025.3538336)
+[7] I. Dulau, C. Helmer, C. Delcourt, and M. Beurton-Aimar, “Ensuring a connected structure for Retinal Vessels Deep-Learning Segmentation,” in *Proceedings of the IEEE/CVF International Conference on Computer Vision Workshops (ICCVW)*, 2023. [https://doi.org/10.1109/ICCVW60793.2023.00250](https://doi.org/10.1109/ICCVW60793.2023.00250) [Open-access paper](https://openaccess.thecvf.com/content/ICCV2023W/CVAMD/papers/Dulau_Ensuring_a_Connected_Structure_for_Retinal_Vessels_Deep-Learning_Segmentation_ICCVW_2023_paper.pdf)
 
-[8] S. Hua, T. Chen, Y. Mi, Y. Shen, Y. Li, J. Zhang, and Y. Ji, “Vision–language semantic guidance and topology refinement for robust retinal vessel segmentation and biomarker analysis in cerebral small vessel disease,” *Frontiers in Cell and Developmental Biology*, vol. 14, Art. no. 1940436, 2026. [https://doi.org/10.3389/fcell.2026.1940436](https://doi.org/10.3389/fcell.2026.1940436)
+[8] Y. Zhou, T. S. Ahmed, M. Wang, E. A. Newman, L. Schmetterer, H. Fu, J. Cheng, and B. Tan, “Masked Vascular Structure Segmentation and Completion in Retinal Images,” *IEEE Transactions on Medical Imaging*, vol. 44, no. 6, pp. 2492–2503, 2025. [https://doi.org/10.1109/TMI.2025.3538336](https://doi.org/10.1109/TMI.2025.3538336)
 
-[9] J. Fadugba, P. Köhler, L. Koch, P. Manescu, and P. Berens, “Benchmarking Retinal Blood Vessel Segmentation Models for Cross-Dataset and Cross-Disease Generalization,” arXiv preprint arXiv:2406.14994, 2024. [https://arxiv.org/abs/2406.14994](https://arxiv.org/abs/2406.14994)
+[9] S. Hua, T. Chen, Y. Mi, Y. Shen, Y. Li, J. Zhang, and Y. Ji, “Vision–language semantic guidance and topology refinement for robust retinal vessel segmentation and biomarker analysis in cerebral small vessel disease,” *Frontiers in Cell and Developmental Biology*, vol. 14, Art. no. 1940436, 2026. [https://doi.org/10.3389/fcell.2026.1940436](https://doi.org/10.3389/fcell.2026.1940436)
 
-[10] P. Köhler, J. Fadugba, P. Berens, and L. M. Koch, “Efficiently correcting patch-based segmentation errors to control image-level performance in retinal images,” in *Proceedings of the 7th International Conference on Medical Imaging with Deep Learning*, Proceedings of Machine Learning Research, vol. 250, pp. 841–856, 2024. [https://proceedings.mlr.press/v250/kohler24a.html](https://proceedings.mlr.press/v250/kohler24a.html)
+[10] J. Fadugba, P. Köhler, L. Koch, P. Manescu, and P. Berens, “Benchmarking Retinal Blood Vessel Segmentation Models for Cross-Dataset and Cross-Disease Generalization,” arXiv preprint arXiv:2406.14994, 2024. [https://arxiv.org/abs/2406.14994](https://arxiv.org/abs/2406.14994)
 
-[11] J. Vargas Quiros, B. Liefers, K. A. van Garderen, J. P. Vermeulen, and C. Klaver, “VascX Models: Deep Ensembles for Retinal Vascular Analysis From Color Fundus Images,” *Translational Vision Science & Technology*, vol. 14, no. 7, Art. no. 19, 2025. [https://doi.org/10.1167/tvst.14.7.19](https://doi.org/10.1167/tvst.14.7.19)
+[11] P. Köhler, J. Fadugba, P. Berens, and L. M. Koch, “Efficiently correcting patch-based segmentation errors to control image-level performance in retinal images,” in *Proceedings of the 7th International Conference on Medical Imaging with Deep Learning*, Proceedings of Machine Learning Research, vol. 250, pp. 841–856, 2024. [https://proceedings.mlr.press/v250/kohler24a.html](https://proceedings.mlr.press/v250/kohler24a.html)
 
-[12] Z. Wang, X. Chen, Z. Wang, P. Shao, Y. Luan, Y. Hu, X. Kang, X. Han, and Z. Wang, “LFU-Net: LoRA-enhanced frequency-aware U-Net with recursive residual attention fusion for retinal segmentation,” *Scientific Reports*, vol. 16, Art. no. 20310, 2026. [https://doi.org/10.1038/s41598-026-50642-8](https://doi.org/10.1038/s41598-026-50642-8)
+[12] J. Vargas Quiros, B. Liefers, K. A. van Garderen, J. P. Vermeulen, and C. Klaver, “VascX Models: Deep Ensembles for Retinal Vascular Analysis From Color Fundus Images,” *Translational Vision Science & Technology*, vol. 14, no. 7, Art. no. 19, 2025. [https://doi.org/10.1167/tvst.14.7.19](https://doi.org/10.1167/tvst.14.7.19)
 
-[13] H. Shu, Q. Yuan, Y. Pan, W. Kong, Y. Feng, C. Peng, K. Li, L.-M. Nguyen, T. Racharak, J. Xin, and G. Sun, “Morphology-aware distillation for lightweight retinal vessel segmentation across fundus photography and OCT angiography,” *Frontiers in Cell and Developmental Biology*, vol. 14, Art. no. 1825518, 2026. [https://doi.org/10.3389/fcell.2026.1825518](https://doi.org/10.3389/fcell.2026.1825518)
+[13] Z. Wang, X. Chen, Z. Wang, P. Shao, Y. Luan, Y. Hu, X. Kang, X. Han, and Z. Wang, “LFU-Net: LoRA-enhanced frequency-aware U-Net with recursive residual attention fusion for retinal segmentation,” *Scientific Reports*, vol. 16, Art. no. 20310, 2026. [https://doi.org/10.1038/s41598-026-50642-8](https://doi.org/10.1038/s41598-026-50642-8)
 
-## 13.2 Dataset References
+[14] H. Shu, Q. Yuan, Y. Pan, W. Kong, Y. Feng, C. Peng, K. Li, L.-M. Nguyen, T. Racharak, J. Xin, and G. Sun, “Morphology-aware distillation for lightweight retinal vessel segmentation across fundus photography and OCT angiography,” *Frontiers in Cell and Developmental Biology*, vol. 14, Art. no. 1825518, 2026. [https://doi.org/10.3389/fcell.2026.1825518](https://doi.org/10.3389/fcell.2026.1825518)
 
-[14] K. Jin, X. Huang, J. Zhou, Y. Li, Y. Yan, Y. Sun, Q. Zhang, Y. Wang, and J. Ye, “FIVES: A Fundus Image Dataset for Artificial Intelligence based Vessel Segmentation,” *Scientific Data*, vol. 9, Art. no. 475, 2022. [https://doi.org/10.1038/s41597-022-01564-3](https://doi.org/10.1038/s41597-022-01564-3)
+## 12.2 Dataset References
 
-[15] M. M. Fraz, P. Remagnino, A. Hoppe, B. Uyyanonvara, A. R. Rudnicka, C. G. Owen, and S. A. Barman, “An Ensemble Classification-Based Approach Applied to Retinal Blood Vessel Segmentation,” *IEEE Transactions on Biomedical Engineering*, vol. 59, no. 9, pp. 2538–2548, 2012. [https://doi.org/10.1109/TBME.2012.2205687](https://doi.org/10.1109/TBME.2012.2205687)
+[15] K. Jin, X. Huang, J. Zhou, Y. Li, Y. Yan, Y. Sun, Q. Zhang, Y. Wang, and J. Ye, “FIVES: A Fundus Image Dataset for Artificial Intelligence based Vessel Segmentation,” *Scientific Data*, vol. 9, Art. no. 475, 2022. [https://doi.org/10.1038/s41597-022-01564-3](https://doi.org/10.1038/s41597-022-01564-3)
 
-## 13.3 Architecture and Evaluation References
+[16] M. M. Fraz, P. Remagnino, A. Hoppe, B. Uyyanonvara, A. R. Rudnicka, C. G. Owen, and S. A. Barman, “An Ensemble Classification-Based Approach Applied to Retinal Blood Vessel Segmentation,” *IEEE Transactions on Biomedical Engineering*, vol. 59, no. 9, pp. 2538–2548, 2012. [https://doi.org/10.1109/TBME.2012.2205687](https://doi.org/10.1109/TBME.2012.2205687)
 
-[16] O. Ronneberger, P. Fischer, and T. Brox, “U-Net: Convolutional Networks for Biomedical Image Segmentation,” in *Medical Image Computing and Computer-Assisted Intervention – MICCAI 2015*, Lecture Notes in Computer Science, vol. 9351, pp. 234–241, 2015. [https://doi.org/10.1007/978-3-319-24574-4_28](https://doi.org/10.1007/978-3-319-24574-4_28)
+## 12.3 Architecture and Evaluation References
 
-[17] S. Shit, J. C. Paetzold, A. Sekuboyina, I. Ezhov, A. Unger, A. Zhylka, J. P. W. Pluim, U. Bauer, and B. H. Menze, “clDice – A Novel Topology-Preserving Loss Function for Tubular Structure Segmentation,” in *Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)*, pp. 16560–16569, 2021. [https://doi.org/10.1109/CVPR46437.2021.01629](https://doi.org/10.1109/CVPR46437.2021.01629)
+[17] O. Ronneberger, P. Fischer, and T. Brox, “U-Net: Convolutional Networks for Biomedical Image Segmentation,” in *Medical Image Computing and Computer-Assisted Intervention – MICCAI 2015*, Lecture Notes in Computer Science, vol. 9351, pp. 234–241, 2015. [https://doi.org/10.1007/978-3-319-24574-4_28](https://doi.org/10.1007/978-3-319-24574-4_28)
 
----
+[18] S. Shit, J. C. Paetzold, A. Sekuboyina, I. Ezhov, A. Unger, A. Zhylka, J. P. W. Pluim, U. Bauer, and B. H. Menze, “clDice – A Novel Topology-Preserving Loss Function for Tubular Structure Segmentation,” in *Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)*, pp. 16560–16569, 2021. [https://doi.org/10.1109/CVPR46437.2021.01629](https://doi.org/10.1109/CVPR46437.2021.01629)
 
-**Reference note:** The previously listed MVCN paper (DOI: 10.1016/j.compbiomed.2025.109982) has been excluded because a retraction notice was published in November 2026. It should not be cited as an active research contribution. The reference list above contains only the retained papers and sources; the retracted paper must also be removed from the Literature Matrix and any in-text discussion.
+## 12.4 Retraction Notice
+
+[19] X. Zhang et al., “Retraction notice to ‘Joint high-resolution feature learning and vessel-shape aware convolutions for efficient vessel segmentation’ [*Computers in Biology and Medicine*, vol. 191 (2025), Art. no. 109982],” *Computers in Biology and Medicine*, 2026, Art. no. 112060. [https://doi.org/10.1016/j.compbiomed.2026.112060](https://doi.org/10.1016/j.compbiomed.2026.112060)
+
+The MVCN study has been removed from the active literature matrix because the journal published a retraction notice on 6 November 2026 [19].

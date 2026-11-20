@@ -290,6 +290,20 @@ Figure 04(b) shows the two loss trends separately for clearer inspection. Traini
 ![Figure 04(b). Separate training and validation loss behaviour.](PNG/thesis_figures/figure04_training_behaviour_qegr_c0y/figure04_model_training_behaviour.png)
 
 *Figure 04. Training behaviour, showing the combined loss curves and their separate trends. The best checkpoint was selected at epoch 20, followed by early stopping at epoch 35.*
+### 8.3 Five-Configuration Segmentation Comparison
+
+Five segmentation configurations were evaluated on the FIVES validation set, which contains 179 images at a resolution of 2048 × 2048 pixels. Precision, sensitivity, specificity, Dice, IoU, and accuracy were calculated using full-resolution predictions. The reported values represent image-level mean performance.
+
+**Table 7. Segmentation performance comparison of five configurations on FIVES validation.**
+
+| Configuration | Threshold | Precision | Sensitivity | Specificity | Dice | IoU | Accuracy |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| M0 | 0.65 | 0.883990 | 0.778338 | 0.992907 | 0.826298 | 0.710345 | 0.977880 |
+| M1 | 0.40 | 0.885829 | 0.846788 | 0.992699 | 0.864267 | 0.772683 | 0.983529 |
+| M2 | 0.35 | 0.880428 | 0.873586 | 0.991995 | 0.875452 | 0.789841 | 0.984734 |
+| Proposed Model | 0.49 | 0.938765 | 0.915571 | 0.995820 | **0.924308** | **0.867834** | **0.991094** |
+| Capacity-control | 0.47 | **0.943161** | 0.901271 | **0.996143** | 0.918821 | 0.858395 | 0.990495 |
+
 
 ## 8.3 Segmentation Configuration Comparison (RQ1)
 
